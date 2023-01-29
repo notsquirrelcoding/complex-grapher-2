@@ -5,32 +5,33 @@ use std::{f64::consts::PI, path::Path};
 use colors_transform::Color;
 use grapher::Grapher;
 use image::Rgb;
-use num_complex::{Complex, ComplexFloat};
+use num_complex::Complex;
 
-const ZOOM_FACTOR: f64 = 0.1;
-const X_SHIFT: f64 = 0.0;
+const ZOOM_FACTOR: f64 = 1.0;
+const X_SHIFT: f64 = -0.0;
 const Y_SHIFT: f64 = 0.0;
 
 fn main() -> anyhow::Result<()> {
     let mut grapher = Grapher::default();
-    
+
     for x in -50..=49 {
         for y in -49..=50 {
             let num = Complex::new(
                 (x as f64 + X_SHIFT) / ZOOM_FACTOR,
                 (y as f64 + Y_SHIFT) / ZOOM_FACTOR,
             );
-            let color = color_num(num.sin());
+
+            let color = color_num(1.0 / num.powc(num.tan()));
 
             let num = num * ZOOM_FACTOR;
-            
+
             let point = grapher.map_point((num.re - X_SHIFT) as i32, (num.im - Y_SHIFT) as i32);
-            
+
             grapher.buf.put_pixel(point.0, point.1, color);
         }
     }
-    
-    grapher.draw_axes(10);
+
+    // grapher.draw_axes(10);
     grapher.save(Path::new("test.png"))?;
 
     Ok(())
