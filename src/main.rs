@@ -16,56 +16,64 @@ fn main() -> anyhow::Result<()> {
     let mut y_shift = 0.0;
     let mut axis_enabled = false;
 
-
     let stdout = Term::buffered_stdout();
 
     loop {
         if let Ok(character) = stdout.read_char() {
             match character {
                 'z' => {
-                  zoom_factor *= 2.0;
-                  
-                },
+                    zoom_factor *= 2.0;
+                    x_shift *= 2.0;
+                    y_shift *= 2.0;
+                }
                 'x' => {
                     zoom_factor /= 2.0;
-                },
+                    x_shift /= 2.0;
+                    y_shift /= 2.0;
+                }
                 'w' => {
                     y_shift += 10.0;
-                  
-                },
+                }
                 'a' => {
                     x_shift -= 10.0;
-                  
-                },
+                }
                 's' => {
                     y_shift -= 10.0;
-                  
-                },
+                }
                 'd' => {
                     x_shift += 10.0;
-                },
+                }
                 'e' => {
                     axis_enabled = !axis_enabled;
                 }
-                ,
                 'r' => {
-                   zoom_factor = 1.0;
-                   x_shift = 0.0;
-                   y_shift = 0.0;
+                    zoom_factor = 1.0;
+                    x_shift = 0.0;
+                    y_shift = 0.0;
                 }
                 _ => break,
             }
             update_plot(&mut grapher, zoom_factor, x_shift, y_shift, axis_enabled)?;
             print!("{}[2J", 27 as char);
-            println!("ZOOM: {zoom_factor}\tRE: {}\tIM: {}", x_shift * zoom_factor, y_shift * zoom_factor);
+            println!(
+                "ZOOM: {zoom_factor}\tCENTER: {}+{}i\tAXIS ENABLED: {}",
+                x_shift / zoom_factor,
+                y_shift / zoom_factor,
+                axis_enabled
+            );
         }
     }
-
 
     Ok(())
 }
 
-fn update_plot(grapher: &mut Grapher, zoom_factor: f64, x_shift: f64, y_shift: f64, draw_axes: bool) -> anyhow::Result<()> {
+fn update_plot(
+    grapher: &mut Grapher,
+    zoom_factor: f64,
+    x_shift: f64,
+    y_shift: f64,
+    draw_axes: bool,
+) -> anyhow::Result<()> {
     for x in -50..=49 {
         for y in -49..=50 {
             let num = Complex::new(
@@ -73,7 +81,7 @@ fn update_plot(grapher: &mut Grapher, zoom_factor: f64, x_shift: f64, y_shift: f
                 (y as f64 + y_shift) / zoom_factor,
             );
 
-            let color = color_num(num.powc(num));
+            let color = color_num(num.powc(num.tan()));
 
             let num = num * zoom_factor;
 
