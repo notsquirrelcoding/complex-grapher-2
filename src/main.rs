@@ -3,37 +3,91 @@ mod grapher;
 use std::{f64::consts::PI, path::Path};
 
 use colors_transform::Color;
+use console::Term;
 use grapher::Grapher;
 use image::Rgb;
 use num_complex::Complex;
 
-const ZOOM_FACTOR: f64 = 1.0;
-const X_SHIFT: f64 = -0.0;
-const Y_SHIFT: f64 = 0.0;
-
 fn main() -> anyhow::Result<()> {
     let mut grapher = Grapher::default();
 
+    let mut zoom_factor = 20.0;
+    let mut x_shift = 0.0;
+    let mut y_shift = 0.0;
+    let mut axis_enabled = false;
+
+
+    let stdout = Term::buffered_stdout();
+
+    loop {
+        if let Ok(character) = stdout.read_char() {
+            match character {
+                'z' => {
+                  zoom_factor *= 2.0;
+                  
+                },
+                'x' => {
+                    zoom_factor /= 2.0;
+                },
+                'w' => {
+                    y_shift += 10.0;
+                  
+                },
+                'a' => {
+                    x_shift -= 10.0;
+                  
+                },
+                's' => {
+                    y_shift -= 10.0;
+                  
+                },
+                'd' => {
+                    x_shift += 10.0;
+                },
+                'e' => {
+                    axis_enabled = !axis_enabled;
+                }
+                ,
+                'r' => {
+                   zoom_factor = 1.0;
+                   x_shift = 0.0;
+                   y_shift = 0.0;
+                }
+                _ => break,
+            }
+            update_plot(&mut grapher, zoom_factor, x_shift, y_shift, axis_enabled)?;
+            print!("{}[2J", 27 as char);
+            println!("ZOOM: {zoom_factor}\tRE: {}\tIM: {}", x_shift * zoom_factor, y_shift * zoom_factor);
+        }
+    }
+
+
+    Ok(())
+}
+
+fn update_plot(grapher: &mut Grapher, zoom_factor: f64, x_shift: f64, y_shift: f64, draw_axes: bool) -> anyhow::Result<()> {
     for x in -50..=49 {
         for y in -49..=50 {
             let num = Complex::new(
-                (x as f64 + X_SHIFT) / ZOOM_FACTOR,
-                (y as f64 + Y_SHIFT) / ZOOM_FACTOR,
+                (x as f64 + x_shift) / zoom_factor,
+                (y as f64 + y_shift) / zoom_factor,
             );
 
-            let color = color_num(1.0 / num.powc(num.tan()));
+            let color = color_num(num.powc(num));
 
-            let num = num * ZOOM_FACTOR;
+            let num = num * zoom_factor;
 
-            let point = grapher.map_point((num.re - X_SHIFT) as i32, (num.im - Y_SHIFT) as i32);
+            let point = grapher.map_point((num.re - x_shift) as i32, (num.im - y_shift) as i32);
 
             grapher.buf.put_pixel(point.0, point.1, color);
         }
     }
 
-    // grapher.draw_axes(10);
-    grapher.save(Path::new("test.png"))?;
+    if draw_axes {
+        grapher.draw_axes(5);
+    }
 
+    grapher.save(Path::new("test.png"))?;
     Ok(())
 }
 

@@ -8,5 +8,6 @@ edition = "2021"
 [dependencies]
 anyhow = "1.0.68"
 colors-transform = "0.2.11"
+console = "0.15.5"
 image = "0.24.5"
 num-complex = "0.4.3"

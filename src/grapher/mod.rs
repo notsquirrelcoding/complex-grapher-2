@@ -21,7 +21,7 @@ impl Default for Grapher {
 
 impl Grapher {
 
-    pub fn _draw_axes(&mut self, tick_space: u32) {
+    pub fn draw_axes(&mut self, tick_space: u32) {
 
         let black_pixel = Rgb([0, 0, 0]);
 
