@@ -64,11 +64,11 @@ impl Grapher {
     }
 
     pub fn width_frac_2(&self) -> i32 {
-        self.width as i32
+        self.width as i32 / 2
     }
 
     pub fn height_frac_2(&self) -> i32 {
-        self.height as i32
+        self.height as i32 / 2
     }
 
 
