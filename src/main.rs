@@ -6,7 +6,13 @@ use colors_transform::Color;
 use console::Term;
 use grapher::Grapher;
 use image::Rgb;
-use num_complex::Complex;
+use num_complex::{Complex, ComplexFloat};
+
+// const I: Complex<f64> = Complex::new(0.0, 1.0);
+// const PHI: f64 = 1.61803399;
+// const SQRT_5: f64 = 2.23606798;
+
+const Z: Complex<f64> = Complex::new(3.0, 2.0);
 
 fn main() -> anyhow::Result<()> {
     let mut grapher = Grapher::default();
@@ -55,10 +61,13 @@ fn main() -> anyhow::Result<()> {
             }
             update_plot(&mut grapher, zoom_factor, x_shift, y_shift, axis_enabled)?;
             print!("{}[2J", 27 as char);
+
+            let num = Complex::new(x_shift / zoom_factor, y_shift / zoom_factor);
+
             println!(
-                "ZOOM: {zoom_factor}\tCENTER: {}+{}i\tAXIS ENABLED: {}",
-                x_shift / zoom_factor,
-                y_shift / zoom_factor,
+                "ZOOM: {zoom_factor}\tCENTER (z): {}\t f(z)={}\tAXIS ENABLED: {}",
+                num,
+                f(num),
                 axis_enabled
             );
         }
@@ -81,7 +90,7 @@ fn update_plot(
                 (y as f64 + y_shift) / zoom_factor,
             );
 
-            let color = color_num(num.powc(num.tan()));
+            let color = color_num(f(num));
 
             let num = num * zoom_factor;
 
@@ -109,4 +118,8 @@ fn color_num(num: Complex<f64>) -> Rgb<u8> {
     let rgb = hsl.to_rgb().as_tuple();
 
     Rgb([rgb.0 as u8, rgb.1 as u8, rgb.2 as u8])
+}
+
+fn f(z: Complex<f64>) -> Complex<f64> {
+    z.powi(2) / (z - Z)
 }
