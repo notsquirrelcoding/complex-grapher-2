@@ -3,7 +3,7 @@ use std::path::Path;
 use image::{ImageBuffer, Rgb, RgbImage, ImageResult};
 
 pub struct Grapher {
-    pub buf: ImageBuffer<Rgb<u8>, Vec<u8>>,
+    buf: ImageBuffer<Rgb<u8>, Vec<u8>>,
     width: u32,
     height: u32,
 }
@@ -20,6 +20,14 @@ impl Default for Grapher {
 }
 
 impl Grapher {
+
+    pub fn new(w: u32, h: u32) -> Self {
+        let mut buf = RgbImage::new(w, h);
+
+        buf.fill(255);
+
+        Self { buf, width: w, height: h }
+    }
 
     pub fn draw_axes(&mut self, tick_space: u32) {
 
@@ -49,6 +57,18 @@ impl Grapher {
     pub fn save(&self, path: &Path) -> ImageResult<()> {
         self.buf.save_with_format(path, image::ImageFormat::Png)?;
         Ok(())
+    }
+
+    pub fn put_pixel(&mut self, x: u32, y: u32, color: Rgb<u8>) {
+        self.buf.put_pixel(x, y, color);
+    }
+
+    pub fn width_frac_2(&self) -> i32 {
+        self.width as i32
+    }
+
+    pub fn height_frac_2(&self) -> i32 {
+        self.height as i32
     }
 
 

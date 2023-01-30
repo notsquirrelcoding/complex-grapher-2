@@ -8,10 +8,6 @@ use grapher::Grapher;
 use image::Rgb;
 use num_complex::{Complex, ComplexFloat};
 
-// const I: Complex<f64> = Complex::new(0.0, 1.0);
-// const PHI: f64 = 1.61803399;
-// const SQRT_5: f64 = 2.23606798;
-
 const Z: Complex<f64> = Complex::new(3.0, 2.0);
 
 fn main() -> anyhow::Result<()> {
@@ -37,21 +33,11 @@ fn main() -> anyhow::Result<()> {
                     x_shift /= 2.0;
                     y_shift /= 2.0;
                 }
-                'w' => {
-                    y_shift += 10.0;
-                }
-                'a' => {
-                    x_shift -= 10.0;
-                }
-                's' => {
-                    y_shift -= 10.0;
-                }
-                'd' => {
-                    x_shift += 10.0;
-                }
-                'e' => {
-                    axis_enabled = !axis_enabled;
-                }
+                'w' => y_shift += 10.0,
+                'a' => x_shift -= 10.0,
+                's' => y_shift -= 10.0,
+                'd' => x_shift += 10.0,
+                'e' => axis_enabled = !axis_enabled,
                 'r' => {
                     zoom_factor = 1.0;
                     x_shift = 0.0;
@@ -83,8 +69,8 @@ fn update_plot(
     y_shift: f64,
     draw_axes: bool,
 ) -> anyhow::Result<()> {
-    for x in -50..=49 {
-        for y in -49..=50 {
+    for x in -(grapher.width_frac_2())..=((grapher.width_frac_2()) - 1) {
+        for y in (1-(grapher.height_frac_2()))..=(grapher.height_frac_2()) {
             let num = Complex::new(
                 (x as f64 + x_shift) / zoom_factor,
                 (y as f64 + y_shift) / zoom_factor,
@@ -96,7 +82,7 @@ fn update_plot(
 
             let point = grapher.map_point((num.re - x_shift) as i32, (num.im - y_shift) as i32);
 
-            grapher.buf.put_pixel(point.0, point.1, color);
+            grapher.put_pixel(point.0, point.1, color);
         }
     }
 
@@ -121,5 +107,5 @@ fn color_num(num: Complex<f64>) -> Rgb<u8> {
 }
 
 fn f(z: Complex<f64>) -> Complex<f64> {
-    z.powi(2) / (z - Z)
+    1.0 / z.ln()
 }
