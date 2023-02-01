@@ -49,7 +49,7 @@ impl Grapher {
     ) -> Self {
         let mut buf = RgbImage::new(w, h);
 
-        buf.fill(255);
+        buf.fill(0);
 
         Self {
             buf,
@@ -85,12 +85,11 @@ impl Grapher {
         }
     }
 
-    pub fn save(&self, path: &Path) -> ImageResult<()> {
-        self.buf.save_with_format(path, image::ImageFormat::Png)?;
-        Ok(())
-    }
 
     pub fn put_pixel(&mut self, x: u32, y: u32, color: Rgb<u8>) {
+        if (x, y) == (22, 22) {
+            println!("{color:?}")
+        }
         self.buf.put_pixel(x, y, color);
     }
 
@@ -117,24 +116,24 @@ impl Grapher {
         // Update very pixel and we add an offset of +-1
         for x in -(self.width_frac_2())..=((self.width_frac_2()) - 1) {
             for y in (1 - (self.height_frac_2()))..=(self.height_frac_2()) {
+
                 let num = Complex::new(
                     (x as f64 + self.x_shift) / self.zoom_factor,
                     (y as f64 + self.y_shift) / self.zoom_factor,
                 );
 
                 // Assign a color to f(z)
-
                 let color = color_num((self.f)(num));
 
                 let num = num * self.zoom_factor;
 
                 let point = self.map_point(
-                    (num.re - self.x_shift) as i32,
-                    (num.im - self.y_shift) as i32,
+                    (num.re - self.x_shift).round() as i32,
+                    (num.im - self.y_shift).round() as i32,
                 );
 
                 self.put_pixel(point.0, point.1, color);
-                // println!("{}/{}", (x+self.width_frac_2()) * ((y+self.height_frac_2())-1) + y + self.height_frac_2(), self.width * self.height);
+
             }
         }
 
@@ -142,11 +141,11 @@ impl Grapher {
             self.draw_axes(5);
         }
 
-        self.save(Path::new("test.png"))?;
+        self.buf.save_with_format(Path::new("test.png"), image::ImageFormat::Png)?;
         Ok(())
     }
 
-    pub fn run(&mut self) -> anyhow::Result<()> {
+    pub fn _run(&mut self) -> anyhow::Result<()> {
         let stdout = Term::buffered_stdout();
 
         loop {
