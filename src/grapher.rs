@@ -2,7 +2,7 @@ use std::{f64::consts::PI, path::Path};
 
 use colors_transform::Color;
 use console::Term;
-use image::{ImageBuffer, ImageResult, Rgb, RgbImage};
+use image::{ImageBuffer, Rgb, RgbImage};
 use num_complex::Complex;
 
 type ComplexFunc = fn(Complex<f64>) -> Complex<f64>;
@@ -87,9 +87,6 @@ impl Grapher {
 
 
     pub fn put_pixel(&mut self, x: u32, y: u32, color: Rgb<u8>) {
-        if (x, y) == (22, 22) {
-            println!("{color:?}")
-        }
         self.buf.put_pixel(x, y, color);
     }
 
