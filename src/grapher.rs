@@ -142,26 +142,26 @@ impl Grapher {
         Ok(())
     }
 
-    pub fn _run(&mut self) -> anyhow::Result<()> {
+    pub fn run(&mut self) -> anyhow::Result<()> {
         let stdout = Term::buffered_stdout();
 
         loop {
             if let Ok(character) = stdout.read_char() {
                 match character {
                     'z' => {
-                        self.zoom_factor *= 100.0;
-                        self.x_shift *= 100.0;
-                        self.y_shift *= 100.0;
+                        self.zoom_factor *= 2.0;
+                        self.x_shift *= 2.0;
+                        self.y_shift *= 2.0;
                     }
                     'x' => {
-                        self.zoom_factor /= 100.0;
-                        self.x_shift /= 100.0;
-                        self.y_shift /= 100.0;
+                        self.zoom_factor /= 2.0;
+                        self.x_shift /= 2.0;
+                        self.y_shift /= 2.0;
                     }
-                    'w' => self.y_shift += 1000.0,
-                    'a' => self.x_shift -= 1000.0,
-                    's' => self.y_shift -= 1000.0,
-                    'd' => self.x_shift += 1000.0,
+                    'w' => self.y_shift += 10.0,
+                    'a' => self.x_shift -= 10.0,
+                    's' => self.y_shift -= 10.0,
+                    'd' => self.x_shift += 10.0,
                     'e' => self.axis_enabled = !self.axis_enabled,
                     'r' => {
                         self.zoom_factor = 1.0;
@@ -180,11 +180,15 @@ impl Grapher {
                     self.y_shift / self.zoom_factor,
                 );
 
+                let out = (self.f)(num);
+
                 println!(
-                    "ZOOM: {}\tCENTER (z): {}\t f(z)={}\tAXIS ENABLED: {}",
+                    "ZOOM: {}\tCENTER (z): {}\t f(z)={} θ={} r={} \tAXIS ENABLED: {}",
                     self.zoom_factor,
                     num,
-                    (self.f)(num),
+                    out,
+                    out.arg(),
+                    out.norm(),
                     self.axis_enabled
                 );
             }
